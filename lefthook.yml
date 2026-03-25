@@ -8,6 +8,7 @@ pre-push:
           echo "Incorrect branch name: $branch"
           echo "Allow names:"
           echo "  build/my-build"
+          echo "  update/my-update"
           echo "  chore/my-chore"
           echo "  ci/ci-pipe"
           echo "  docs/docs-update"
