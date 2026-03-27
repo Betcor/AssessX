@@ -16,11 +16,13 @@ public class SignUpController {
 
     @FXML private TextField firstNameField;
     @FXML private TextField lastNameField;
+    
     @FXML private TextField groupField;
     @FXML private TextField emailField;
 
     @FXML private Label firstNameError;
     @FXML private Label lastNameError;
+    
     @FXML private Label groupError;
     @FXML private Label emailError;
 
@@ -52,6 +54,7 @@ public class SignUpController {
     private void renderErrors(Map<String, String> errors) {
         setError(firstNameError, errors.get("firstName"));
         setError(lastNameError, errors.get("lastName"));
+        
         setError(groupError, errors.get("groupId"));
         setError(emailError, errors.get("email"));
     }
@@ -60,10 +63,12 @@ public class SignUpController {
         if (message == null) {
             label.setText("");
             label.setVisible(false);
+            
             label.setManaged(false);
         } else {
             label.setText(message);
             label.setVisible(true);
+            
             label.setManaged(true);
         }
     }
@@ -86,6 +91,7 @@ public class SignUpController {
     private void clearFields() {
         firstNameField.clear();
         lastNameField.clear();
+        
         groupField.clear();
         emailField.clear();
     }
