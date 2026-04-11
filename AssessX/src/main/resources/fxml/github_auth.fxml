@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.assessx.assessx.controller.GitHubOAuthController"
+            styleClass="login-root">
+
+    <!-- Status bar at top -->
+    <top>
+        <HBox styleClass="oauth-status-bar" alignment="CENTER_LEFT" spacing="10">
+            <ProgressIndicator fx:id="spinner" maxWidth="20" maxHeight="20" visible="false"/>
+            <Label fx:id="statusLabel" styleClass="oauth-status-label" text="Завантаження..."/>
+        </HBox>
+    </top>
+
+    <!-- WebView fills center -->
+    <center>
+        <WebView fx:id="webView"/>
+    </center>
+
+</BorderPane>

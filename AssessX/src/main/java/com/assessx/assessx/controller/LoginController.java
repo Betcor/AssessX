@@ -1,9 +1,9 @@
 package com.assessx.assessx.controller;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Label;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 import java.io.IOException;
 
@@ -14,22 +14,30 @@ public class LoginController {
 
     @FXML
     protected void onGithubLogin() {
-        System.out.println("GitHub login");
+        navigateTo("/fxml/github_auth.fxml");
     }
 
     @FXML
     protected void onGoogleLogin() {
-        System.out.println("Google login");
+        // TODO gmail oauth
+        loginTitle.setText("Google login ще не підтримується");
     }
 
     @FXML
     protected void onRegisterClick() {
+        navigateTo("/fxml/sign_up.fxml", "/styles/sign_up.css");
+    }
+
+    private void navigateTo(String fxmlPath, String... extraCss) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/sign_up.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Scene scene = new Scene(loader.load());
-           
+
             scene.getStylesheets().add(getClass().getResource("/styles/login.css").toExternalForm());
-            scene.getStylesheets().add(getClass().getResource("/styles/sign_up.css").toExternalForm());
+            scene.getStylesheets().add(getClass().getResource("/styles/app.css").toExternalForm());
+            for (String css : extraCss) {
+                scene.getStylesheets().add(getClass().getResource(css).toExternalForm());
+            }
 
             Stage stage = (Stage) loginTitle.getScene().getWindow();
             stage.setScene(scene);
