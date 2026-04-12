@@ -8,7 +8,6 @@ on:
 jobs:
   build-linux:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -17,19 +16,31 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build Linux jlink
-        run: mvn clean javafx:jlink
+      - name: Build jlink
+        run: mvn clean javafx:jlink -DskipTests
         working-directory: AssessX
 
-      - name: Upload Linux runtime
+      - name: Patch launcher (Linux)
+        run: |
+          cat > AssessX/target/app/bin/app << 'EOF'
+          #!/bin/sh
+          DIR=`dirname $0`
+          $DIR/java -Dapi.base=${{ secrets.API_URL }}:${{ secrets.API_PORT }} \
+            -m com.assessx.assessx/com.assessx.assessx.MainApplication "$@"
+          EOF
+          chmod +x AssessX/target/app/bin/app
+
+      - name: Repack zip
+        run: cd AssessX/target && zip -r app-linux.zip app/
+
+      - name: Upload Linux zip
         uses: actions/upload-artifact@v4
         with:
-          name: linux-runtime
-          path: AssessX/target/app
+          name: linux-zip
+          path: AssessX/target/app-linux.zip
 
   build-windows:
     runs-on: windows-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -38,19 +49,30 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build jar
-        run: mvn clean package
+      - name: Build jlink
+        run: mvn clean javafx:jlink -DskipTests
         working-directory: AssessX
 
-      - name: Upload jar (Windows)
+      - name: Patch launcher (Windows)
+        shell: pwsh
+        run: |
+          $content = "@echo off`r`nset DIR=%~dp0`r`n`"%DIR%java`" -Dapi.base=${{ secrets.API_URL }}:${{ secrets.API_PORT }} -m com.assessx.assessx/com.assessx.assessx.MainApplication %*"
+          Set-Content -Encoding ASCII "AssessX/target/app/bin/app.bat" $content
+
+      - name: Repack zip
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "AssessX/target/app/*" `
+            -DestinationPath "AssessX/target/app-windows.zip" -Force
+
+      - name: Upload Windows zip
         uses: actions/upload-artifact@v4
         with:
-          name: windows-jar
-          path: AssessX/target/*.jar
+          name: windows-zip
+          path: AssessX/target/app-windows.zip
 
   build-macos:
     runs-on: macos-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -59,12 +81,44 @@ jobs:
           distribution: temurin
           java-version: 21
 
-      - name: Build jar
-        run: mvn clean package
+      - name: Build jlink
+        run: mvn clean javafx:jlink -DskipTests
         working-directory: AssessX
 
-      - name: Upload jar (macOS)
+      - name: Patch launcher (macOS)
+        run: |
+          cat > AssessX/target/app/bin/app << 'EOF'
+          #!/bin/sh
+          DIR=`dirname $0`
+          $DIR/java -Dapi.base=${{ secrets.API_URL }}:${{ secrets.API_PORT }} \
+            -m com.assessx.assessx/com.assessx.assessx.MainApplication "$@"
+          EOF
+          chmod +x AssessX/target/app/bin/app
+
+      - name: Repack zip
+        run: cd AssessX/target && zip -r app-macos.zip app/
+
+      - name: Upload macOS zip
         uses: actions/upload-artifact@v4
         with:
-          name: macos-jar
-          path: AssessX/target/*.jar
+          name: macos-zip
+          path: AssessX/target/app-macos.zip
+
+  release:
+    needs: [build-linux, build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: all-zips
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v1.0.0-build.${{ github.run_number }}
+          name: "AssessX Build #${{ github.run_number }}"
+          files: all-zips/**/*.zip
+          generate_release_notes: true
