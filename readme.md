@@ -62,14 +62,8 @@ Teachers create tests and code practice assignments, assign them to student grou
 ### Assignments Page (student)
 ![Assignments Page](assets/screens/assignments.png)
 
-### Taking a Test
-![Take Test](assets/screens/take_test.png)
-
 ### Code Practice Assignment
 ![Code Practice](assets/screens/code_practice.png)
-
-### Results Page
-![Results Page](assets/screens/results.png)
 
 ### Teacher Panel — Tests
 ![Teacher Tests](assets/screens/teacher_tests.png)
